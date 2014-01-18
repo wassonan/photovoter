@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.util.Set;
 
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -29,7 +30,7 @@ import com.moodstocks.android.Scanner;
 public class MainActivity extends Activity implements Scanner.SyncListener{
 	private static String key = "";
     private static String secret = "";
-    private static DBCollection events = null;
+    private static DBObject event = null;
     private static int vid = 0;
     
     private boolean compatible = false;
@@ -37,53 +38,7 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		Thread thread = new Thread(new Runnable(){
-		    @Override
-		    public void run() {
-		        try{
-		    	    MongoClient mongoClient = null;
-		    	    
-		    		try{
-		    			String textUri = "mongodb://test:test@ds027419.mongolab.com:27419/photovoter";
-		    			MongoClientURI uri = new MongoClientURI(textUri);
-		    			mongoClient = new MongoClient(uri);
-		    			
-		    		}catch(MongoException e){
-		    			System.out.println("First Error");
-		    			//e.printStackTrace();
-		    			Log.d("mainactivity", "Server not found");
-		    			System.out.println("Server not found");
-		    			System.exit(0);
-		    		} catch (UnknownHostException e) {
-		    			e.printStackTrace();
-		    		}
-		    		
-		    		System.out.println("Blah");
-		    		DB db = mongoClient.getDB("photovoter"); 
-		        	events = db.getCollection("events");
-		        	
-		        	Set<String> colls = db.getCollectionNames();
-
-		        	for (String s : colls) {
-		        	    System.out.println(s);
-		        	}
-		    	
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		        }
-		    }
-		});
-
-		thread.start(); 
-		try {
-			thread.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		super.onCreate(savedInstanceState);		
 		
 		setContentView(R.layout.activity_main);
 	}
@@ -106,15 +61,66 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
 	
 	public void onGoClicked(View view) {
     	final EditText input = new EditText(this);
+
+    	if (android.os.Build.VERSION.SDK_INT > 9) {
+    		StrictMode.ThreadPolicy policy = 
+    		        new StrictMode.ThreadPolicy.Builder().permitAll().build();
+    		StrictMode.setThreadPolicy(policy);
+    		}
+    	
     	new AlertDialog.Builder(this)
 		  .setTitle("Welcome")
 		  .setMessage("Please Enter Your Event Key")
 		  .setView(input)
 		  .setNeutralButton("GO", new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int which) { 
-		        	Editable value = input.getText();//USE THIS AS KEY
+		        	String value = input.getText().toString();//USE THIS AS KEY
 		        
-		        	DBObject event = events.findOne(new BasicDBObject("eid", value.toString()));
+//		        	Thread thread = new Thread(new Runnable(){
+//		    		    @Override
+//		    		    public void run() {
+		    		        try{
+		    		    	    MongoClient mongoClient = null;
+		    		    	    
+		    		    		try{
+		    		    			String textUri = "mongodb://test:test@ds027419.mongolab.com:27419/photovoter";
+		    		    			MongoClientURI uri = new MongoClientURI(textUri);
+		    		    			mongoClient = new MongoClient(uri);
+		    		    			
+		    		    		}catch(MongoException e){
+		    		    			System.out.println("First Error");
+		    		    			//e.printStackTrace();
+		    		    			Log.d("mainactivity", "Server not found");
+		    		    			System.out.println("Server not found");
+		    		    			System.exit(0);
+		    		    		} catch (UnknownHostException e) {
+		    		    			e.printStackTrace();
+		    		    		}
+		    		    		
+		    		    		System.out.println("Blah");
+		    		    		DB db = mongoClient.getDB("photovoter"); 
+		    		        	event = db.getCollection("events").
+		    		        			findOne(new BasicDBObject("eid", value));
+		    		        	
+		    		        	Set<String> colls = db.getCollectionNames();
+
+		    		        	for (String s : colls) {
+		    		        	    System.out.println(s);
+		    		        	}
+		    		    	
+		    		        } catch (Exception e) {
+		    		            e.printStackTrace();
+		    		        }
+//		    		    }
+//		    		});
+//
+//		    		thread.start(); 
+//		    		try {
+//		    			thread.join();
+//		    		} catch (InterruptedException e) {
+//		    			// TODO Auto-generated catch block
+//		    			e.printStackTrace();
+//		    		}
 		        	
 		        	if(event != null){
 		        	
@@ -131,9 +137,9 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
 		  .show();
 	}
 
-	public static DBCollection getEvents(){
+	public static DBObject getEvent(){
 		
-		return events;
+		return event;
 	}
 	
 	public static String getKey(){

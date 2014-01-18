@@ -189,9 +189,8 @@ public class Swipe extends FragmentActivity implements ScannerSession.Listener{
 		if (result != null){
 			
 			String imgid = result.toString();
-			DBCollection events = MainActivity.getEvents();
-			DBObject teams = events.findOne(new BasicDBObject("key", MainActivity.getKey()));
-
+			DBObject teams = MainActivity.getEvent();
+			
 			ArrayList<DBObject> teamList = (ArrayList<DBObject>) teams.get("teams");
 			
 			for(DBObject team: teamList){
@@ -204,10 +203,7 @@ public class Swipe extends FragmentActivity implements ScannerSession.Listener{
 				}
 			}
 			
-			teams.put("teams", teamList);
-			events.findAndModify(new BasicDBObject("key", MainActivity.getKey()),
-					teams);
-			
+			teams.put("teams", teamList);			
 			
 			new AlertDialog.Builder(Swipe.this)
 			.setTitle("Do you want to vote for")
