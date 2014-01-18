@@ -25,6 +25,7 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
 	private static String key = "";
     private static String secret = "";
     private static DBCollection events = null;
+    private static int vid = 0;
     
     private boolean compatible = false;
     private Scanner scanner;
@@ -46,7 +47,7 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
 			System.exit(-1);
 		}
 		
-		DB db = mongoClient.getDB("photovoter");
+		DB db = mongoClient.getDB("photovoter"); 
     	events = db.getCollection("events");
 		
 		setContentView(R.layout.activity_main);
@@ -95,9 +96,19 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
 		  .show();
 	}
 
-	public DBCollection getEvents(){
+	public static DBCollection getEvents(){
 		
 		return events;
+	}
+	
+	public static String getKey(){
+		
+		return key;
+	}
+	
+	public static int getVid(){
+	
+		return vid;
 	}
 	
 	protected void onDestroy() {

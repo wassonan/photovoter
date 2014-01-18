@@ -1,8 +1,14 @@
 package brown.quarter.PhotoVoter;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 import brown.quarter.photovoter.R;
+
+import com.mongodb.DBCollection;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
 import com.moodstocks.android.MoodstocksError;
 import com.moodstocks.android.Result;
 import com.moodstocks.android.ScannerSession;
@@ -181,9 +187,31 @@ public class Swipe extends FragmentActivity implements ScannerSession.Listener{
 	public void onScanComplete(Result result) {
 		// TODO Auto-generated method stub
 		if (result != null){
+			
+			String imgid = result.toString();
+			DBCollection events = MainActivity.getEvents();
+			DBObject teams = events.findOne(new BasicDBObject("key", MainActivity.getKey()));
+
+			ArrayList<DBObject> teamList = (ArrayList<DBObject>) teams.get("teams");
+			
+			for(DBObject team: teamList){
+			
+				if(team.get("imgid").equals(imgid)){
+					
+					ArrayList voters = (ArrayList) team.get("voters");
+					voters.add(new BasicDBObject("vid", MainActivity.getVid()));
+					team.put("voters", voters);
+				}
+			}
+			
+			teams.put("teams", teamList);
+			events.findAndModify(new BasicDBObject("key", MainActivity.getKey()),
+					teams);
+			
+			
 			new AlertDialog.Builder(Swipe.this)
-			.setTitle("SUCESS")
-			.setMessage(result.getValue()).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+			.setTitle("Do you want to vote for")
+			.setMessage(imgid).setNeutralButton("OK", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) { 
 					session.resume();
 				}}).show();
