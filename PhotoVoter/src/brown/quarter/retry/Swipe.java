@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 @SuppressLint("ValidFragment")
@@ -116,9 +117,11 @@ public class Swipe extends FragmentActivity implements ScannerSession.Listener{
 	public class TableFragment extends Fragment {
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			Log.d("SWAG", "create view");
-			View rootView = inflater.inflate(R.layout.fragment_swipe_dummy,
+			Log.d("SWAG", "create table view");
+			View rootView = inflater.inflate(R.layout.table_fragment,
 					container, false);
+			ScrollView table = (ScrollView) rootView.findViewById(R.id.table);
+			//UPDATE TABLE HERE
 			return rootView;
 		}
 	}
