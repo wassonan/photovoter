@@ -25,7 +25,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="brown.quarter.retry.MainActivity"
+            android:name="brown.quarter.PhotoVoter.MainActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>
@@ -35,7 +35,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="brown.quarter.retry.Swipe"
+            android:name="brown.quarter.PhotoVoter.Swipe"
             android:label="@string/title_activity_swipe" >
         </activity>
     </application>

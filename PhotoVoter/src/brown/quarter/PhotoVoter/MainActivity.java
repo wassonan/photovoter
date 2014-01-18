@@ -1,4 +1,4 @@
-package brown.quarter.retry;
+package brown.quarter.PhotoVoter;
 
 
 import android.os.Bundle;
@@ -8,27 +8,50 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.text.Editable;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import brown.quarter.photovoter.R;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.moodstocks.android.MoodstocksError;
 import com.moodstocks.android.Scanner;
 
 public class MainActivity extends Activity implements Scanner.SyncListener{
-	private static final String API_KEY = "nzclqxo8kfkjry7bessy";
-    private static final String API_SECRET = "1K3hcCwI6wS6WCet";
-
+	private static String key = "";
+    private static String secret = "";
+    private static DBCollection events = null;
+    
     private boolean compatible = false;
     private Scanner scanner;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+	    MongoClient mongoClient = null;
+	    
+		try{
+			String textUri = "mongodb://photovoter:photovoter@ds027419.mongolab.com:27419/photovoter";
+			MongoClientURI uri = new MongoClientURI(textUri);
+			System.out.println(uri);
+			mongoClient = new MongoClient(uri);
+		}catch(Exception e){
+			
+			Log.d("mainactivity", "Server not found");
+			System.out.println("Server not found");
+			System.exit(-1);
+		}
 		
+		DB db = mongoClient.getDB("photovoter");
+    	events = db.getCollection("events");
+		
+		setContentView(R.layout.activity_main);
 	}
-
+	
 	
 	public void startSwipe(){
 		compatible = Scanner.isCompatible();
@@ -36,7 +59,7 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
         if (compatible) {
           try {
             scanner = Scanner.get();
-            scanner.open(this, API_KEY, API_SECRET);
+            scanner.open(this, key, secret);
             scanner.sync(this);
           } catch (MoodstocksError e) {
             e.log();
@@ -54,11 +77,29 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
 		  .setNeutralButton("GO", new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int which) { 
 		        	Editable value = input.getText();//USE THIS AS KEY
-		        	startSwipe();
+		        
+		        	DBObject event = events.findOne(new BasicDBObject("eid", value.toString()));
+		        	
+		        	if(event != null){
+		        	
+		        		key = (String) event.get("key");
+		        		secret = (String) event.get("secret");
+			        	
+			        	startSwipe();
+		        	}
+		        	else{
+		        	
+		        		//put a failed box
+		        	}
 		        }})
 		  .show();
 	}
 
+	public DBCollection getEvents(){
+		
+		return events;
+	}
+	
 	protected void onDestroy() {
         super.onDestroy();
         if (compatible) {

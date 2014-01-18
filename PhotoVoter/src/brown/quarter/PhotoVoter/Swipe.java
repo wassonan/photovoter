@@ -1,4 +1,4 @@
-package brown.quarter.retry;
+package brown.quarter.PhotoVoter;
 
 import java.util.Locale;
 
@@ -125,8 +125,7 @@ public class Swipe extends FragmentActivity implements ScannerSession.Listener{
 			return rootView;
 		}
 	}
-	
-	
+
 	
 	public class ScannerFragment extends Fragment{
 		SurfaceView preview;
