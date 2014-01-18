@@ -3,7 +3,7 @@ package brown.quarter.PhotoVoter;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import brown.quarter.photovoter.R;
+import brown.quarter.PhotoVoter.R;
 
 import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
