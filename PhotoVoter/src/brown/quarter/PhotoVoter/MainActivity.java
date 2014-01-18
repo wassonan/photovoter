@@ -1,6 +1,9 @@
 package brown.quarter.PhotoVoter;
 
 
+import java.net.UnknownHostException;
+import java.util.Set;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,6 +21,8 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoException;
+import com.mongodb.ServerAddress;
 import com.moodstocks.android.MoodstocksError;
 import com.moodstocks.android.Scanner;
 
@@ -33,22 +38,52 @@ public class MainActivity extends Activity implements Scanner.SyncListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	    MongoClient mongoClient = null;
-	    
-		try{
-			String textUri = "mongodb://photovoter:photovoter@ds027419.mongolab.com:27419/photovoter";
-			MongoClientURI uri = new MongoClientURI(textUri);
-			System.out.println(uri);
-			mongoClient = new MongoClient(uri);
-		}catch(Exception e){
-			
-			Log.d("mainactivity", "Server not found");
-			System.out.println("Server not found");
-			System.exit(-1);
+		
+		Thread thread = new Thread(new Runnable(){
+		    @Override
+		    public void run() {
+		        try{
+		    	    MongoClient mongoClient = null;
+		    	    
+		    		try{
+		    			String textUri = "mongodb://test:test@ds027419.mongolab.com:27419/photovoter";
+		    			MongoClientURI uri = new MongoClientURI(textUri);
+		    			mongoClient = new MongoClient(uri);
+		    			
+		    		}catch(MongoException e){
+		    			System.out.println("First Error");
+		    			//e.printStackTrace();
+		    			Log.d("mainactivity", "Server not found");
+		    			System.out.println("Server not found");
+		    			System.exit(0);
+		    		} catch (UnknownHostException e) {
+		    			e.printStackTrace();
+		    		}
+		    		
+		    		System.out.println("Blah");
+		    		DB db = mongoClient.getDB("photovoter"); 
+		        	events = db.getCollection("events");
+		        	
+		        	Set<String> colls = db.getCollectionNames();
+
+		        	for (String s : colls) {
+		        	    System.out.println(s);
+		        	}
+		    	
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+		    }
+		});
+
+		thread.start(); 
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
-		DB db = mongoClient.getDB("photovoter"); 
-    	events = db.getCollection("events");
 		
 		setContentView(R.layout.activity_main);
 	}
